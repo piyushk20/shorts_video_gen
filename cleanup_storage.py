@@ -209,6 +209,78 @@ def audit_and_cleanup(dry_run=False):
         "renders": [v["folder"] for v in verified_renders]
     }
 
+def remove_all_output_renderings():
+    """
+    Completely removes all output renderings from renders/ and workspace root.
+    Resets renders_manifest.json to an empty catalog.
+    """
+    print("=" * 70)
+    print("  OpusMotion Studio: Removing ALL Output Renderings")
+    print(f"  Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print("=" * 70)
+
+    total_reclaimed_bytes = 0
+    removed_packages = []
+    removed_files = []
+
+    # 1. Remove all subdirectories in renders/
+    if os.path.exists(RENDERS_DIR):
+        for item in os.listdir(RENDERS_DIR):
+            item_path = os.path.join(RENDERS_DIR, item)
+            if os.path.isdir(item_path):
+                folder_bytes = sum(os.path.getsize(os.path.join(r, f)) for r, _, fs in os.walk(item_path) for f in fs)
+                total_reclaimed_bytes += folder_bytes
+                shutil.rmtree(item_path)
+                removed_packages.append(item)
+                print(f"  [-] Removed render package: {item} ({folder_bytes/1024/1024:.2f} MB)")
+
+    # 2. Reset master renders_manifest.json to []
+    if os.path.exists(RENDERS_DIR):
+        with open(MANIFEST_PATH, "w", encoding="utf-8") as f:
+            json.dump([], f, indent=2)
+        print(f"  [+] Reset {MANIFEST_PATH} to empty catalog [].")
+
+    # 3. Remove output contact sheet preview images in root
+    preview_prefixes = ["preview_drone_contact_sheet.png", "preview_emudhra_contact_sheet.png",
+                        "preview_quantum_contact_sheet.png", "preview_v1_rough.png",
+                        "preview_v3_contact_sheet.png"]
+    for pf in preview_prefixes:
+        p_path = os.path.join(ROOT_DIR, pf)
+        if os.path.exists(p_path):
+            p_bytes = os.path.getsize(p_path)
+            total_reclaimed_bytes += p_bytes
+            os.remove(p_path)
+            removed_files.append(pf)
+            print(f"  [-] Removed output contact sheet: {pf} ({p_bytes/1024:.1f} KB)")
+
+    # 4. Remove any loose video output files (.mp4 / .webm) in root
+    for f in os.listdir(ROOT_DIR):
+        if f.lower().endswith(('.mp4', '.webm')):
+            f_path = os.path.join(ROOT_DIR, f)
+            f_bytes = os.path.getsize(f_path)
+            total_reclaimed_bytes += f_bytes
+            os.remove(f_path)
+            removed_files.append(f)
+            print(f"  [-] Removed root output video: {f} ({f_bytes/1024/1024:.2f} MB)")
+
+    reclaimed_mb = total_reclaimed_bytes / (1024 * 1024)
+    print("\n" + "=" * 70)
+    print("  Complete: ALL Output Renderings Removed")
+    print(f"  Render Packages Removed: {len(removed_packages)}")
+    print(f"  Output Files Removed:    {len(removed_files)}")
+    print(f"  Total Space Reclaimed:   {reclaimed_mb:.2f} MB")
+    print("=" * 70)
+
+    return {
+        "status": "success",
+        "packages_removed": removed_packages,
+        "files_removed": removed_files,
+        "reclaimed_mb": round(reclaimed_mb, 2)
+    }
+
 if __name__ == "__main__":
-    is_dry = "--dry-run" in sys.argv
-    audit_and_cleanup(dry_run=is_dry)
+    if "--remove-all" in sys.argv or "remove" in sys.argv:
+        remove_all_output_renderings()
+    else:
+        is_dry = "--dry-run" in sys.argv
+        audit_and_cleanup(dry_run=is_dry)

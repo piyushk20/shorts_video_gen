@@ -62,3 +62,13 @@ ehthumbs.db
 *.swp
 *.swo
 *~
+
+# Output Video Renderings & Binary Artifacts
+*.mp4
+*.webm
+renders/render_*
+renders/*_run/
+preview_*contact_sheet.png
+preview_*rough.png
+!renders/renders_manifest.json
+
