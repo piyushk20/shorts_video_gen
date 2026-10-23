@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpusMotion Studio — Code-Driven Procedural Short Video Generator</title>
+  <meta name="description" content="Professional procedural video generator producing broadcast-ready short videos (8-45s) entirely through code.">
+  <link rel="stylesheet" href="styles.css?v=3">
+</head>
+<body>
+
+  <!-- Top Studio Header Navigation -->
+  <header class="studio-header">
+    <div class="brand-section">
+      <div class="brand-logo">
+        <svg viewBox="0 0 24 24">
+          <path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8 12.5v-9l6 4.5-6 4.5z"/>
+        </svg>
+      </div>
+      <div class="brand-title">
+        OpusMotion Studio
+        <span class="brand-badge">Pure Code Engine</span>
+      </div>
+    </div>
+
+    <!-- Pipeline Approval Stepper -->
+    <div class="stage-stepper" id="pipelineStepper">
+      <div class="stage-pill active" id="stepPill1" onclick="switchStageTab('script')">
+        <span class="dot"></span>
+        <span>1. Script & Storyboard</span>
+      </div>
+      <div class="stage-pill" id="stepPill2" onclick="switchStageTab('visuals')">
+        <span class="dot"></span>
+        <span>2. Match Images to Script</span>
+      </div>
+      <div class="stage-pill" id="stepPill3" onclick="switchStageTab('audio')">
+        <span class="dot"></span>
+        <span>3. Voice-Over & Audio</span>
+      </div>
+      <div class="stage-pill" id="stepPill4" onclick="switchStageTab('code')">
+        <span class="dot"></span>
+        <span>4. Procedural Render</span>
+      </div>
+      <div class="stage-pill" id="stepPill5" onclick="switchStageTab('social')">
+        <span class="dot"></span>
+        <span>5. Social Outro & CTA</span>
+      </div>
+    </div>
+
+    <!-- Header Actions -->
+    <div class="header-actions">
+      <div class="aspect-select-group">
+        <button class="btn-aspect active" id="aspect916" onclick="setAspectRatio('9:16')">9:16 Shorts</button>
+        <button class="btn-aspect" id="aspect169" onclick="setAspectRatio('16:9')">16:9 Wide</button>
+        <button class="btn-aspect" id="aspect11" onclick="setAspectRatio('1:1')">1:1 Square</button>
+      </div>
+
+      <button class="btn-secondary" id="btnOpenDedicatedTab" onclick="openDedicatedPreviewTab()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+          <polyline points="15 3 21 3 21 9"></polyline>
+          <line x1="10" y1="14" x2="21" y2="3"></line>
+        </svg>
+        Dedicated Preview Tab
+      </button>
+
+      <button class="btn-secondary" id="btnOpenRenderVault" onclick="openRenderArchiveModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+        </svg>
+        Render Archive
+      </button>
+
+      <button class="btn-primary" id="btnExportVideo" onclick="startVideoExport()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        Render & Export
+      </button>
+    </div>
+  </header>
+
+  <!-- Main 3-Column Studio Layout -->
+  <main class="studio-container">
+    
+    <!-- LEFT PANEL: Stages & Configuration -->
+    <aside class="studio-panel" id="leftStudioPanel">
+      <div class="panel-header">
+        <div class="panel-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+            <line x1="8" y1="21" x2="16" y2="21"></line>
+            <line x1="12" y1="17" x2="12" y2="21"></line>
+          </svg>
+          Production Pipeline
+        </div>
+        <div class="stage-tab-nav" id="stageTabNav">
+          <button class="stage-tab-btn active" id="tabBtnScript" onclick="switchStageTab('script')">1. Script</button>
+          <button class="stage-tab-btn" id="tabBtnVisuals" onclick="switchStageTab('visuals')">2. Match Images</button>
+          <button class="stage-tab-btn" id="tabBtnAudio" onclick="switchStageTab('audio')">3. Voice-Over</button>
+          <button class="stage-tab-btn" id="tabBtnCode" onclick="switchStageTab('code')">4. Render</button>
+          <button class="stage-tab-btn" id="tabBtnSocial" onclick="switchStageTab('social')">5. Social CTA</button>
+          <button class="btn-add-tab" id="btnAddCustomTab" onclick="openAddTabModal()" title="Add Custom Studio Tab">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            + Tab
+          </button>
+        </div>
+      </div>
+
+      <div class="panel-content" id="panelStageContent">
+
+        <!-- TAB 1: SCRIPT & STORYBOARD STUDIO -->
+        <div id="sectionStageScript" class="stage-section-block">
+          
+          <div class="form-group">
+            <label class="form-label">
+              <span>Input Concept or Article URL</span>
+              <span class="badge" id="lblWordCount">3 scenes</span>
+            </label>
+            <textarea class="form-textarea" id="txtConceptInput" placeholder="Enter topic, paste article URL, or notes (e.g. 'How Quantum Computing breaks RSA encryption in seconds')...">Why Neural Networks dream in geometric patterns: How latent space vectors sculpt visual imagination.</textarea>
+            
+            <div class="preset-chips">
+              <span class="preset-chip" style="background: rgba(255, 77, 77, 0.2); border-color: #ff4d4d; color: #fff; font-weight: 700;" onclick="loadScriptPreset('emudhra')">🚨 Reuters: eMudhra SSL Crisis (5 Scenes + Motion Graphics)</span>
+              <span class="preset-chip" style="background: rgba(0, 242, 254, 0.15); border-color: var(--accent-cyan); color: #fff; font-weight: 600;" onclick="loadScriptPreset('quantum')">✨ Quantum Motion Graphics (5 Scenes + Render)</span>
+              <span class="preset-chip" onclick="loadUrlSample('https://www.reuters.com/legal/litigation/indian-firm-emudhra-exits-global-digital-certificates-business-after-2026-10-22/')">🌐 Reuters: eMudhra SSL Exit URL</span>
+              <span class="preset-chip" onclick="loadUrlSample('https://en.wikipedia.org/wiki/James_Webb_Space_Telescope')">🌐 URL: Webb Space Telescope</span>
+              <span class="preset-chip" onclick="loadUrlSample('https://en.wikipedia.org/wiki/Quantum_computing')">🌐 URL: Quantum Computing</span>
+              <span class="preset-chip" onclick="loadScriptPreset('drones')">⚡ Drone Swarms vs Air Defense</span>
+              <span class="preset-chip" onclick="loadScriptPreset('fusion')">⚡ Marathon Fusion (Gold)</span>
+              <span class="preset-chip" onclick="loadScriptPreset('synthwave')">⚡ 80s Synthwave (Retro Grid)</span>
+              <span class="preset-chip" onclick="loadScriptPreset('bauhaus')">⚡ Bauhaus Design Rules</span>
+              <span class="preset-chip" onclick="loadScriptPreset('blueprint')">⚡ Deep-Sea Blueprint CAD</span>
+              <span class="preset-chip" onclick="loadScriptPreset('aurora')">⚡ Aurora Glassmorphism</span>
+              <span class="preset-chip" onclick="loadScriptPreset('quantum')">Quantum Superposition</span>
+              <span class="preset-chip" onclick="loadScriptPreset('neural')">Latent Vectors</span>
+              <span class="preset-chip" onclick="loadScriptPreset('market')">Algorithmic Alpha</span>
+              <span class="preset-chip" onclick="loadScriptPreset('cosmos')">Cosmic Horizon</span>
+            </div>
+
+            <!-- Instant Analyze & Proceed Action Button -->
+            <div style="margin-top: 10px;">
+              <button class="btn-primary" id="btnAnalyzeAndProceed" onclick="analyzeInputAndProceed()" style="width: 100%; justify-content: center; padding: 12px; font-size: 0.88rem; background: linear-gradient(135deg, #00f2fe, #9d4edd); border: none; box-shadow: 0 4px 18px rgba(0, 242, 254, 0.35);">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                </svg>
+                ⚡ Analyze & Generate Video Script
+              </button>
+            </div>
+
+            <!-- Dynamic Analysis Result Box -->
+            <div id="analysisSummaryBox" class="analysis-summary-box" style="display: none;">
+              <div class="analysis-summary-header">
+                <span class="analysis-type-badge" id="lblAnalysisType">URL Analyzed</span>
+                <span class="analysis-topic-title" id="lblAnalysisTopic">Marathon Fusion: Mercury into Gold</span>
+              </div>
+              <div class="analysis-summary-stats" id="lblAnalysisStats">
+                5 Scenes Generated • 41.6s Target Duration • Theme: Cyber Radar • Voice: Guy
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              <span>Target Duration & Pacing</span>
+              <span class="badge" id="lblDurationVal">20 Seconds</span>
+            </label>
+            <div class="slider-row">
+              <input type="range" class="styled-range" id="rngDuration" min="10" max="45" step="5" value="20" oninput="updateDurationSetting(this.value)">
+              <span class="range-val" id="dispDuration">20s</span>
+            </div>
+          </div>
+
+          <!-- Scene Breakdown Cards -->
+          <div class="form-group">
+            <label class="form-label">Scene-by-Scene Breakdown</label>
+            <div class="scene-cards" id="sceneCardsList">
+              <!-- Dynamically populated scene cards -->
+            </div>
+          </div>
+
+          <!-- Voice-Over Narration Text Area -->
+          <div class="form-group">
+            <label class="form-label">Complete Voice-over Script (Word-for-Word)</label>
+            <textarea class="form-textarea" id="txtVoFullScript" style="min-height: 90px;" placeholder="Exact word-for-word voiceover narration..."></textarea>
+          </div>
+
+          <!-- APPROVAL GATE 1: SCRIPT -->
+          <div class="approval-gate-box" id="gateBoxScript">
+            <div class="approval-gate-header">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+              Stage 1 Approval Gate Required
+            </div>
+            <div class="approval-gate-text">
+              Review the scene breakdown, script narration, and timing above. Next in workflow: match high-resolution visual imagery to each scene beat before proceeding to audio & render.
+            </div>
+            <button class="btn-gate-approve" id="btnApproveScript" onclick="approveScriptGate()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              Approve Script & Match Images to Script →
+            </button>
+          </div>
+
+        </div>
+
+        <!-- TAB 2: MATCH IMAGES TO SCRIPT (WORKFLOW GATE BEFORE PROCEEDING) -->
+        <div id="sectionStageVisuals" class="stage-section-block" style="display: none;">
+          <div class="form-group">
+            <label class="form-label">
+              <span>Match Images to Script Narration</span>
+              <span class="badge" id="lblVisualsBadge">5/5 Assets Linked</span>
+            </label>
+            <p style="font-size: 0.78rem; color: var(--text-muted); line-height: 1.4; margin-bottom: 8px;">
+              Every scene beat must be matched to high-definition motion graphics imagery aligned with narration and motion direction before proceeding to audio & render.
+            </p>
+
+            <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+              <button class="btn-primary" onclick="triggerAutoMatchImages()" style="flex: 1; justify-content: center; padding: 10px; font-size: 0.8rem; background: linear-gradient(135deg, #00f2fe, #06d6a0); color: #000; font-weight: 700; border: none; box-shadow: 0 4px 14px rgba(0, 242, 254, 0.3);">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                ⚡ Auto-Match Images to Script
+              </button>
+              <button class="btn-secondary" onclick="generateContactSheet()" style="justify-content: center; padding: 10px; font-size: 0.8rem;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                QA Sheet
+              </button>
+            </div>
+
+            <div class="visuals-gallery-container" id="visualsGalleryList">
+              <!-- Dynamically populated scene visuals cards -->
+            </div>
+
+            <!-- APPROVAL GATE 2: IMAGE ALIGNMENT -->
+            <div class="approval-gate-box" id="gateBoxVisuals" style="margin-top: 14px;">
+              <div class="approval-gate-header">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                Stage 2 Approval Gate: Image Alignment
+              </div>
+              <div class="approval-gate-text">
+                Confirm all scenes have verified high-resolution motion graphics imagery aligned with narration before proceeding to Voice-Over synthesis.
+              </div>
+              <button class="btn-gate-approve" id="btnApproveVisuals" onclick="approveVisualsGate()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                Approve Images & Proceed to Voice-Over →
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 3: VOICE-OVER & TTS LAB -->
+        <div id="sectionStageAudio" class="stage-section-block" style="display: none;">
+          
+          <div class="form-group">
+            <label class="form-label">
+              <span>TTS Engine & Neural Voice</span>
+              <span class="badge" id="lblActiveVoiceBadge">Guy (Active)</span>
+            </label>
+            <select class="form-select" id="selTtsVoice" onchange="handleVoiceSelectionChange(this.value)">
+              <option value="en-US-GuyNeural" selected>Guy (Energetic Documentary Narrative) — 41.6s</option>
+              <option value="en-US-ChristopherNeural">Christopher (Deep Authoritative Tech) — 41.5s</option>
+              <option value="en-GB-SoniaNeural">Sonia (British Cinematic Specialist) — 40.9s</option>
+              <option value="en-US-JennyNeural">Jenny (Warm Precision Conversational) — 41.2s</option>
+            </select>
+          </div>
+
+          <!-- Direct Run Preview with Selected Voice Button -->
+          <div style="margin-bottom: 12px;">
+            <button class="btn-primary" id="btnRunPreviewVoice" onclick="runPreviewWithSelectedVoice()" style="width: 100%; justify-content: center; padding: 12px; font-size: 0.9rem;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              ▶ Run Preview with Selected Voice
+            </button>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              <span>Speech Rate / Pacing</span>
+              <span class="badge" id="lblSpeedVal">1.24x</span>
+            </label>
+            <div class="slider-row">
+              <input type="range" class="styled-range" id="rngSpeechRate" min="0.8" max="1.5" step="0.05" value="1.24" oninput="updateSpeechRate(this.value)">
+              <span class="range-val" id="dispSpeedRate">1.24x</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              <span>Voice Pitch Shift</span>
+              <span class="badge" id="lblPitchVal">0 Hz</span>
+            </label>
+            <div class="slider-row">
+              <input type="range" class="styled-range" id="rngSpeechPitch" min="-5" max="5" step="1" value="0" oninput="updateSpeechPitch(this.value)">
+              <span class="range-val" id="dispSpeechPitch">0 Hz</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Voice Audition & Synthesis</label>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn-secondary" id="btnAuditionVO" onclick="auditionVoiceOver()" style="flex: 1;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                  <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                </svg>
+                Audition Sample
+              </button>
+              <button class="btn-secondary" id="btnSynthesizeVO" onclick="synthesizeFullVO()" style="flex: 1;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                  <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                </svg>
+                Re-Generate Track
+              </button>
+            </div>
+          </div>
+
+          <!-- Sentence Alignment Matrix -->
+          <div class="form-group">
+            <label class="form-label">Sentence-by-Sentence Audio Markers</label>
+            <div id="sentenceTimingList" style="display: flex; flex-direction: column; gap: 6px;">
+              <!-- Dynamically populated sentence markers -->
+            </div>
+          </div>
+
+          <!-- APPROVAL GATE 2: VOICE-OVER -->
+          <div class="approval-gate-box" id="gateBoxAudio">
+            <div class="approval-gate-header">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+              Stage 3 Approval Gate Required
+            </div>
+            <div class="approval-gate-text">
+              Confirm voice inflection, pronunciation, and duration alignment. Approving locks the audio timeline and unlocks final procedural rendering.
+            </div>
+            <button class="btn-gate-approve" id="btnApproveAudio" onclick="approveAudioGate()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              Approve Voice-Over & Proceed to Procedural Render →
+            </button>
+          </div>
+
+        </div>
+
+        <!-- TAB 4: PROCEDURAL RENDER ENGINE -->
+        <div id="sectionStageCode" class="stage-section-block" style="display: none;">
+          <div class="form-group">
+            <label class="form-label">Procedural Mathematical Engine</label>
+            <p style="font-size: 0.78rem; color: var(--text-muted); line-height: 1.4;">
+              Pure code rendering via HTML5 Canvas 2D & WebGL shaders. No generative video hallucination. 100% deterministic, frame-accurate animation.
+            </p>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Active Shaders & Math Transforms</label>
+            <pre style="background: var(--bg-secondary); padding: 12px; border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent-cyan); overflow-x: auto; border: 1px solid var(--border-subtle);"><code id="codeSnippetBox">// Real-time procedural loop
+function render(t, ctx, W, H) {
+  const theta = t * Math.PI * 0.75;
+  const zoom = 1 + 0.15 * Math.sin(t * 1.2);
+  drawGeometricVortex(ctx, W/2, H/2, theta, zoom);
+  drawKineticTypography(ctx, currentScene.text, t);
+}</code></pre>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <button class="btn-secondary" onclick="exportProjectSourceCode()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M16 18l6-6-6-6"></path>
+                <path d="M8 6l-6 6 6 6"></path>
+              </svg>
+              Export Pure JavaScript Code (.js)
+            </button>
+            <button class="btn-primary" onclick="switchStageTab('social')" style="justify-content: center; padding: 11px; background: linear-gradient(135deg, #1da1f2, #00f2fe); color: #000; font-weight: 700; border: none; font-size: 0.82rem;">
+              <span>Configure Social Outro Credentials (X: @Piyushk20) →</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- TAB 5: SOCIAL MEDIA CREDENTIALS & OUTRO CTA -->
+        <div id="sectionStageSocial" class="stage-section-block" style="display: none;">
+          
+          <div class="form-group">
+            <label class="form-label">
+              <span>Select Social Media Platform</span>
+              <span class="badge" id="lblActivePlatform" style="color: #ffffff; border-color: rgba(255, 255, 255, 0.4);">X / Twitter</span>
+            </label>
+            <div class="platform-select-grid">
+              <div class="platform-btn-card" id="platBtn_youtube" onclick="selectSocialPlatform('youtube')">
+                <svg viewBox="0 0 24 24" fill="#FF0000"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                <span class="platform-badge-pill">YouTube</span>
+              </div>
+              <div class="platform-btn-card" id="platBtn_tiktok" onclick="selectSocialPlatform('tiktok')">
+                <svg viewBox="0 0 24 24" fill="#00F2FE"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.29 0 .58.04.85.12V9.4a6.33 6.33 0 0 0-1-.08A6.34 6.34 0 0 0 3 15.66a6.34 6.34 0 0 0 10.82 4.47 6.3 6.3 0 0 0 1.94-4.54V8.46a8.27 8.27 0 0 0 4.83 1.54v-3.31z"/></svg>
+                <span class="platform-badge-pill">TikTok</span>
+              </div>
+              <div class="platform-btn-card" id="platBtn_instagram" onclick="selectSocialPlatform('instagram')">
+                <svg viewBox="0 0 24 24" fill="#E1306C"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zm0 10.162a3.999 3.999 0 1 1 0-7.998 3.999 3.999 0 0 1 0 7.998zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
+                <span class="platform-badge-pill">Instagram</span>
+              </div>
+              <div class="platform-btn-card active" id="platBtn_twitter" onclick="selectSocialPlatform('twitter')">
+                <svg viewBox="0 0 24 24" fill="#FFFFFF"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                <span class="platform-badge-pill">X / Twitter</span>
+              </div>
+              <div class="platform-btn-card" id="platBtn_linkedin" onclick="selectSocialPlatform('linkedin')">
+                <svg viewBox="0 0 24 24" fill="#0A66C2"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/></svg>
+                <span class="platform-badge-pill">LinkedIn</span>
+              </div>
+              <div class="platform-btn-card" id="platBtn_discord" onclick="selectSocialPlatform('discord')">
+                <svg viewBox="0 0 24 24" fill="#5865F2"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.894.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+                <span class="platform-badge-pill">Discord</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Creator / Channel Name</label>
+            <input type="text" class="form-input" id="txtSocialName" value="Piyushk20" oninput="saveSocialSettings(false)" placeholder="e.g. Piyushk20" style="width: 100%; background: var(--bg-secondary); border: 1px solid var(--border-subtle); padding: 8px 12px; border-radius: var(--radius-sm); color: #fff; font-size: 0.82rem;">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              <span>Handle / Username Credentials</span>
+              <span class="badge" style="color: var(--accent-cyan); border-color: rgba(0, 242, 254, 0.4);">Shown in Last Frame</span>
+            </label>
+            <input type="text" class="form-input" id="txtSocialHandle" value="@Piyushk20" oninput="saveSocialSettings(false)" placeholder="e.g. @Piyushk20" style="width: 100%; background: var(--bg-secondary); border: 1px solid var(--border-subtle); padding: 8px 12px; border-radius: var(--radius-sm); color: #00f2fe; font-family: var(--font-mono); font-weight: 600; font-size: 0.85rem;">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              <span>Outro CTA Button Label</span>
+            </label>
+            <input type="text" class="form-input" id="txtSocialBtnLabel" value="Follow" oninput="saveSocialSettings(false)" placeholder="e.g. Follow or Subscribe" style="width: 100%; background: var(--bg-secondary); border: 1px solid var(--border-subtle); padding: 8px 12px; border-radius: var(--radius-sm); color: #fff; font-size: 0.82rem;">
+          </div>
+
+          <!-- Save Credentials & Sync Controls -->
+          <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 4px;">
+            <div style="display: flex; gap: 8px;">
+              <button class="btn-primary" id="btnSaveSocial" onclick="saveSocialSettings(true)" style="flex: 1; justify-content: center; padding: 11px; background: #1da1f2; color: #fff; font-weight: 700; border: none; box-shadow: 0 4px 16px rgba(29, 161, 242, 0.4); font-size: 0.82rem;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                  <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                  <polyline points="7 3 7 8 15 8"></polyline>
+                </svg>
+                💾 Save Credentials (X: @Piyushk20)
+              </button>
+
+              <button class="btn-secondary" onclick="previewLastFrameOutro()" style="justify-content: center; padding: 11px; font-size: 0.8rem;" title="Preview Last Frame Outro on Canvas">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polygon points="10 8 16 12 10 16 10 8"></polygon>
+                </svg>
+                👁 Last Frame
+              </button>
+            </div>
+
+            <div id="socialSaveIndicator" style="font-size: 0.72rem; color: var(--accent-green); display: flex; align-items: center; gap: 6px; padding: 4px 2px;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <span>Auto-saved to localStorage & synced across canvas renders</span>
+            </div>
+
+            <button class="btn-primary" id="btnSyncSocialToScript" onclick="syncSocialToScript()" style="width: 100%; justify-content: center; padding: 10px; background: linear-gradient(135deg, #00f2fe, #06d6a0); color: #000; font-weight: 700; border: none; box-shadow: 0 4px 14px rgba(0, 242, 254, 0.3); font-size: 0.8rem;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+              </svg>
+              ⚡ Sync "Follow @Piyushk20 on X" to Voice Script
+            </button>
+          </div>
+
+          <!-- Outro Live Mini Preview Card -->
+          <div class="form-group" style="margin-top: 10px;">
+            <label class="form-label">Outro Card Preview (Rendered on Final Frame)</label>
+            <div class="social-preview-mini-card" id="socialMiniCardPreview">
+              <div class="social-preview-avatar" id="socialPreviewAvatar" style="background: #000; border: 1px solid #fff;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff" id="miniPlatformIcon"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+              </div>
+              <div style="flex: 1; min-width: 0;">
+                <div style="font-weight: 700; font-size: 0.92rem; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" id="miniPreviewName">Piyushk20</div>
+                <div style="font-family: var(--font-mono); font-size: 0.78rem; color: var(--accent-cyan); font-weight: 600;" id="miniPreviewHandle">@Piyushk20</div>
+                <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 2px;" id="miniPreviewCta">Follow on X for Daily Tech & Science Breakdowns</div>
+              </div>
+              <div style="background: #1da1f2; color: #fff; font-size: 0.72rem; font-weight: 700; padding: 6px 12px; border-radius: 20px; box-shadow: 0 0 10px rgba(29, 161, 242, 0.4); white-space: nowrap;" id="miniPreviewBtn">
+                Follow
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+
+
+        <!-- DYNAMIC CUSTOM TABS CONTAINER -->
+        <div id="dynamicTabsContainer"></div>
+
+      </div>
+    </aside>
+
+    <!-- CENTER PANEL: Dedicated Viewport & Live Canvas -->
+    <section class="center-viewport-panel" id="centerViewportPanel">
+      
+      <!-- Viewport Header Toolbar -->
+      <div class="viewport-toolbar">
+        <div class="viewport-stats">
+          <div class="viewport-stat-item">Format: <span id="dispCurrentAspect">9:16 (1080x1920)</span></div>
+          <div class="viewport-stat-item">FPS: <span id="dispCurrentFps">60.0</span></div>
+          <div class="viewport-stat-item">Engine: <span>Canvas2D Math</span></div>
+        </div>
+
+        <div class="viewport-tools">
+          <button class="tool-btn" id="btnToggleSafeZone" onclick="toggleSafeZone()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="9" y1="3" x2="9" y2="21"></line>
+            </svg>
+            Safe Zone
+          </button>
+
+          <button class="tool-btn" id="btnContactSheet" onclick="generateContactSheet()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="7" height="7"></rect>
+              <rect x="14" y="3" width="7" height="7"></rect>
+              <rect x="14" y="14" width="7" height="7"></rect>
+              <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+            9-Frame QA Sheet
+          </button>
+
+          <button class="tool-btn" id="btnFullscreen" onclick="toggleFullscreen()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Canvas Stage Container -->
+      <div class="canvas-stage-wrapper" id="canvasWrapper">
+        
+        <!-- Floating Dedicated Preview Tab Indicator -->
+        <div class="dedicated-tab-badge" onclick="openDedicatedPreviewTab()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+            <polyline points="15 3 21 3 21 9"></polyline>
+            <line x1="10" y1="14" x2="21" y2="3"></line>
+          </svg>
+          Dedicated Tab Synced
+        </div>
+
+        <!-- Mobile Device Frame Container -->
+        <div class="preview-device-frame" id="previewDeviceFrame">
+          <canvas id="videoCanvas" width="1080" height="1920"></canvas>
+
+          <!-- Safe Zone Overlay Mockup (TikTok / Reels layout) -->
+          <div class="safe-zone-overlay" id="safeZoneOverlay">
+            <div class="safe-zone-header">TIKTOK / REELS SAFE BOUNDS</div>
+            <div class="safe-zone-sidebar">
+              <div class="mock-ui-icon">❤️</div>
+              <div class="mock-ui-icon">💬</div>
+              <div class="mock-ui-icon">🔄</div>
+              <div class="mock-ui-icon">🎵</div>
+            </div>
+            <div class="safe-zone-footer">
+              @opusmotion_pro • Procedural Short #MotionGraphics #CreativeCoding
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- RIGHT PANEL: Visual Styles & Audio Mixer Lab -->
+    <aside class="studio-panel" id="rightStudioPanel">
+      <div class="panel-header">
+        <div class="panel-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+          Style & Audio Studio
+        </div>
+      </div>
+
+      <div class="panel-content">
+        
+        <!-- Style Cards Grid -->
+        <div class="form-group">
+          <label class="form-label">Procedural Visual Archetype</label>
+          <div class="style-selector-grid">
+            
+            <div class="style-card active" id="styleCardOpus" onclick="selectVisualArchetype('opus')">
+              <div class="style-card-title">Opus Keynote</div>
+              <div class="style-card-desc">Spiral icosahedrons, orbit rings & kinetic vectors.</div>
+            </div>
+
+            <div class="style-card" id="styleCardCyber" onclick="selectVisualArchetype('cyber')">
+              <div class="style-card-title">Cyber HUD / FUI</div>
+              <div class="style-card-desc">Perspective 3D grid, sonar sweep & telemetry.</div>
+            </div>
+
+            <div class="style-card" id="styleCardSwiss" onclick="selectVisualArchetype('swiss')">
+              <div class="style-card-title">Swiss Kinetic</div>
+              <div class="style-card-desc">Bold typography, sliding masks & high-contrast.</div>
+            </div>
+
+            <div class="style-card" id="styleCardCelestial" onclick="selectVisualArchetype('celestial')">
+              <div class="style-card-title">Celestial Flow</div>
+              <div class="style-card-desc">Curved trigonometric waves & pulsing starfield.</div>
+            </div>
+
+            <div class="style-card" id="styleCardSynthwave" onclick="selectVisualArchetype('synthwave')">
+              <div class="style-card-title">80s Retro Synthwave</div>
+              <div class="style-card-desc">Infinite horizon grid, wireframe sun & CRT scanlines.</div>
+            </div>
+
+            <div class="style-card" id="styleCardBauhaus" onclick="selectVisualArchetype('bauhaus')">
+              <div class="style-card-title">Geometric Bauhaus</div>
+              <div class="style-card-desc">Primary colors, constructivist wipes & heavy type.</div>
+            </div>
+
+            <div class="style-card" id="styleCardAurora" onclick="selectVisualArchetype('aurora')">
+              <div class="style-card-title">Aurora Glassmorphism</div>
+              <div class="style-card-desc">Frosted glass refraction, iridescent mesh & glints.</div>
+            </div>
+
+            <div class="style-card" id="styleCardBlueprint" onclick="selectVisualArchetype('blueprint')">
+              <div class="style-card-title">Technical Blueprint</div>
+              <div class="style-card-desc">Cyan drafting grid, technical calipers & CAD marks.</div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Film Post-FX Passes (from Lemo-Opuscar Technique) -->
+        <div class="form-group" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 12px; margin-top: 8px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <label class="form-label" style="margin: 0; font-size: 0.78rem;">
+              <span>Cinematic Film FX (35mm / CRT)</span>
+            </label>
+            <span class="badge" style="background: rgba(0, 242, 254, 0.15); color: var(--accent-cyan); font-size: 0.65rem;">Lemo-Opuscar Post-Pass</span>
+          </div>
+
+          <div style="display: flex; gap: 14px; align-items: center; flex-wrap: wrap;">
+            <label style="font-size: 0.75rem; color: var(--text-dim); display: flex; align-items: center; gap: 6px; cursor: pointer;">
+              <input type="checkbox" id="chkFilmGrain" checked onchange="toggleFilmGrain(this.checked)">
+              <span>35mm Film Grain</span>
+            </label>
+            <label style="font-size: 0.75rem; color: var(--text-dim); display: flex; align-items: center; gap: 6px; cursor: pointer;">
+              <input type="checkbox" id="chkFilmVignette" checked onchange="toggleFilmVignette(this.checked)">
+              <span>Lens Vignette</span>
+            </label>
+            <label style="font-size: 0.75rem; color: var(--text-dim); display: flex; align-items: center; gap: 6px; cursor: pointer;">
+              <input type="checkbox" id="chkFilmScanlines" checked onchange="toggleFilmScanlines(this.checked)">
+              <span>CRT Scanlines</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Dynamics & Controls -->
+        <div class="form-group">
+          <label class="form-label">
+            <span>Particle Density</span>
+            <span class="badge" id="lblParticleDensity">120 pts</span>
+          </label>
+          <div class="slider-row">
+            <input type="range" class="styled-range" id="rngParticles" min="30" max="300" step="10" value="120" oninput="updateParticleCount(this.value)">
+            <span class="range-val" id="dispParticles">120</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">
+            <span>Kinetic Camera Zoom / Shake</span>
+            <span class="badge" id="lblCameraDynamics">Medium</span>
+          </label>
+          <div class="slider-row">
+            <input type="range" class="styled-range" id="rngCameraMotion" min="0" max="100" step="5" value="45" oninput="updateCameraMotion(this.value)">
+            <span class="range-val" id="dispCameraMotion">45%</span>
+          </div>
+        </div>
+
+        <!-- Audio Stems Mixer -->
+        <div class="form-group">
+          <label class="form-label">Audio Stems Mixer</label>
+          
+          <div class="slider-control" style="margin-bottom: 8px;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--text-muted);">
+              <span>Voice-Over Narration</span>
+              <span id="dispVoVol">100%</span>
+            </div>
+            <input type="range" class="styled-range" id="rngVoVol" min="0" max="100" value="100" oninput="updateMixerVolume('vo', this.value)">
+          </div>
+
+          <div class="slider-control" style="margin-bottom: 8px;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--text-muted);">
+              <span>Procedural Synth BGM</span>
+              <span id="dispBgmVol">35%</span>
+            </div>
+            <input type="range" class="styled-range" id="rngBgmVol" min="0" max="100" value="35" oninput="updateMixerVolume('bgm', this.value)">
+          </div>
+
+          <div class="slider-control">
+            <div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--text-muted);">
+              <span>Scene Transition SFX</span>
+              <span id="dispSfxVol">50%</span>
+            </div>
+            <input type="range" class="styled-range" id="rngSfxVol" min="0" max="100" value="50" oninput="updateMixerVolume('sfx', this.value)">
+          </div>
+        </div>
+
+        <!-- Project Manifest & Quick Downloads -->
+        <div class="form-group">
+          <label class="form-label">Deliverables Package</label>
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+            <button class="btn-secondary" onclick="downloadAudioStem()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 18v-6a9 9 0 0 1 18 0v6"></path>
+                <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path>
+              </svg>
+              Download Voice-Over Audio (.wav)
+            </button>
+            <button class="btn-secondary" onclick="downloadProjectManifest()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+              </svg>
+              Download Project Manifest (.json)
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </aside>
+
+  </main>
+
+  <!-- BOTTOM MULTI-TRACK TIMELINE & TRANSPORT BAR -->
+  <footer class="timeline-transport-bar">
+    <div class="transport-controls-row">
+      
+      <!-- Transport Buttons -->
+      <div class="transport-buttons">
+        <button class="transport-btn" id="btnRewind" title="Jump to Start" onclick="jumpToStart()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg>
+        </button>
+        <button class="transport-btn" id="btnPrevFrame" title="Prev Frame (-1/60s)" onclick="stepFrame(-1)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+        </button>
+        <button class="transport-btn btn-play" id="btnPlayPause" title="Play / Pause" onclick="togglePlayPause()">
+          <svg id="iconPlay" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        </button>
+        <button class="transport-btn" id="btnNextFrame" title="Next Frame (+1/60s)" onclick="stepFrame(1)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+        </button>
+        <button class="transport-btn" id="btnLoop" title="Loop Playback" onclick="toggleLoop()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
+        </button>
+      </div>
+
+      <!-- Timecode Counter -->
+      <div class="timecode-display">
+        <span class="timecode-current" id="dispCurrentTimecode">00:00.00</span>
+        <span class="timecode-total" id="dispTotalTimecode">/ 00:20.00</span>
+      </div>
+
+      <!-- Playback Speed Toggles -->
+      <div class="timeline-tools">
+        <button class="tool-btn" id="spd05" onclick="setPlaybackSpeed(0.5)">0.5x</button>
+        <button class="tool-btn active" id="spd10" onclick="setPlaybackSpeed(1.0)">1.0x</button>
+        <button class="tool-btn" id="spd20" onclick="setPlaybackSpeed(2.0)">2.0x</button>
+      </div>
+
+    </div>
+
+    <!-- Scrubber Canvas & Track Area -->
+    <div class="timeline-track-area" id="timelineScrubberArea" onclick="handleTimelineScrubClick(event)">
+      
+      <!-- Playhead Needle -->
+      <div class="timeline-playhead" id="timelinePlayhead"></div>
+
+      <!-- Time Ruler -->
+      <div class="timeline-ruler" id="timelineRuler">
+        <span>00:00</span>
+        <span>00:05</span>
+        <span>00:10</span>
+        <span>00:15</span>
+        <span>00:20</span>
+      </div>
+
+      <!-- Scene Track Markers -->
+      <div class="timeline-scenes-track" id="timelineScenesTrack">
+        <!-- Filled dynamically -->
+      </div>
+
+      <!-- Waveform Audio Visual Track -->
+      <div class="timeline-audio-track">
+        <canvas id="waveformCanvas"></canvas>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- MODAL: 9-Frame Contact Sheet QA Inspector -->
+  <div class="modal-backdrop" id="contactSheetModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+            <polyline points="21 15 16 10 5 21"></polyline>
+          </svg>
+          9-Frame Production QA Contact Sheet
+        </div>
+        <button class="modal-close-btn" onclick="closeContactSheetModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 0.82rem; color: var(--text-muted);">
+          Contact sheet generated across exact temporal intervals (0% to 100%). Use to verify kinetic typography legibility, contrast, and layout safety.
+        </p>
+        <div class="contact-sheet-grid" id="contactSheetGrid">
+          <!-- Dynamically populated 9 frame cells -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Video Export Progress & Download -->
+  <div class="modal-backdrop" id="exportModal">
+    <div class="modal-dialog" style="max-width: 520px;">
+      <div class="modal-header">
+        <div class="modal-title">Rendering High-Bitrate Video</div>
+        <button class="modal-close-btn" onclick="closeExportModal()">&times;</button>
+      </div>
+      <div class="modal-body" style="text-align: center; padding: 32px 24px;">
+        <div id="exportProgressContainer">
+          <div style="font-size: 2.2rem; font-weight: 800; font-family: var(--font-mono); color: var(--accent-cyan); margin-bottom: 8px;" id="exportPercentText">0%</div>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;" id="exportStatusText">Capturing 60fps canvas stream & multiplexing audio stems...</p>
+          <div style="height: 6px; background: var(--bg-secondary); border-radius: var(--radius-full); overflow: hidden;">
+            <div id="exportProgressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple)); transition: width 0.1s linear;"></div>
+          </div>
+        </div>
+        <div id="exportCompleteContainer" style="display: none;">
+          <div style="font-size: 2.5rem; margin-bottom: 8px;">✨</div>
+          <h3 style="font-size: 1.2rem; margin-bottom: 8px;">Render Complete!</h3>
+          <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 20px;">Your deterministic code-driven short video is ready.</p>
+          <a id="btnDownloadVideo" class="btn-primary" style="justify-content: center; text-decoration: none;" download="opusmotion_render.webm">
+            Download Video (.webm / MP4)
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Render Archive & Package Viewer -->
+  <div class="modal-backdrop" id="renderArchiveModal">
+    <div class="modal-dialog" style="max-width: 820px;">
+      <div class="modal-header">
+        <div class="modal-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+          </svg>
+          Render Archive & Dedicated Video Packages
+        </div>
+        <button class="modal-close-btn" onclick="closeRenderArchiveModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; background: rgba(0, 242, 254, 0.06); padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid rgba(0, 242, 254, 0.25);">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span style="font-size: 0.78rem; color: #fff; font-weight: 600;">Storage Policy: <span style="color: var(--accent-green);">ONLY Final Successful Renders Retained</span></span>
+          </div>
+          <button class="tool-btn" id="btnAuditStorage" onclick="triggerStorageCleanup()" style="font-size: 0.72rem; padding: 4px 10px; color: var(--accent-cyan); border-color: rgba(0, 242, 254, 0.4);">
+            🧹 Audit & Prune Storage
+          </button>
+        </div>
+        <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 8px;">
+          Every completed video render is saved to its own dedicated directory in <code style="color: var(--accent-cyan); font-family: var(--font-mono);">renders/</code> with the master MP4, voiceover stem, contact sheets, script, details, and manifest.
+        </p>
+        <div class="render-archive-list" id="renderArchiveList">
+          <div style="text-align: center; color: var(--text-muted); padding: 20px;">Loading render packages...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Video Package Details Viewer -->
+  <div class="modal-backdrop" id="renderDetailsModal">
+    <div class="modal-dialog" style="max-width: 720px; max-height: 85vh;">
+      <div class="modal-header">
+        <div class="modal-title" id="lblDetailsModalTitle">Video Package Details</div>
+        <button class="modal-close-btn" onclick="closeRenderDetailsModal()">&times;</button>
+      </div>
+      <div class="modal-body" style="overflow-y: auto;">
+        <pre id="preDetailsContent" style="white-space: pre-wrap; font-family: var(--font-mono); font-size: 0.78rem; background: var(--bg-primary); padding: 16px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); color: var(--text-main); line-height: 1.5;"></pre>
+      </div>
+  <!-- MODAL: Add Custom Studio Tab -->
+  <div class="modal-backdrop" id="addTabModal">
+    <div class="modal-dialog" style="max-width: 480px;">
+      <div class="modal-header">
+        <div class="modal-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          Add Custom Studio Tab
+        </div>
+        <button class="modal-close-btn" onclick="closeAddTabModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 14px;">
+          Create a personalized studio workspace tab for director beat sheets, visual prompts, or teleprompter copy.
+        </p>
+
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label class="form-label">Tab Title</label>
+          <input type="text" class="form-input" id="txtNewTabTitle" placeholder="e.g. Director Beat Sheet, B-Roll Prompts, Custom Notes" style="width: 100%; background: var(--bg-secondary); border: 1px solid var(--border-subtle); padding: 9px 12px; border-radius: var(--radius-sm); color: #fff; font-size: 0.82rem;">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label class="form-label">Tab Type / Template</label>
+          <select class="form-select" id="selNewTabType" style="width: 100%; background: var(--bg-secondary); border: 1px solid var(--border-subtle); padding: 9px 12px; border-radius: var(--radius-sm); color: #fff; font-size: 0.82rem;">
+            <option value="notes">📝 Director Notes & Beat Sheet</option>
+            <option value="visuals">🎨 Motion Graphics & Visuals Workspace</option>
+            <option value="teleprompter">📜 Live Full-Screen Teleprompter</option>
+            <option value="prompts">✨ AI Image & B-Roll Prompts</option>
+            <option value="code">💻 Custom JavaScript FX Script</option>
+          </select>
+        </div>
+
+        <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+          <button class="btn-secondary" onclick="closeAddTabModal()">Cancel</button>
+          <button class="btn-primary" onclick="createCustomTabFromModal()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            Create Tab
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Master Synchronized Audio Element -->
+  <audio id="masterAudioTrack" src="voice_guy_40s.mp3" preload="auto"></audio>
+
+  <!-- Main JavaScript Logic -->
+  <script src="app.js?v=3"></script>
+</body>
+</html>

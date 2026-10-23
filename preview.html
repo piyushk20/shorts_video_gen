@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpusMotion — Dedicated Video Preview Tab</title>
+  <meta name="description" content="Dedicated high-resolution live preview tab for code-driven procedural video generation.">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      background: #040508;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .preview-header {
+      height: 52px;
+      background: var(--bg-glass);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+    }
+    .preview-body {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      background: radial-gradient(circle at center, #0f1422 0%, #030406 100%);
+      padding: 16px;
+      overflow: hidden;
+    }
+    .preview-version-pill {
+      font-size: 0.72rem;
+      font-family: var(--font-mono);
+      background: rgba(0, 242, 254, 0.15);
+      color: var(--accent-cyan);
+      border: 1px solid rgba(0, 242, 254, 0.3);
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .version-selector-group {
+      display: flex;
+      background: var(--bg-secondary);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-subtle);
+      overflow: hidden;
+    }
+    .btn-version {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      padding: 4px 10px;
+      cursor: pointer;
+    }
+    .btn-version.active {
+      background: var(--accent-cyan);
+      color: #000;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Preview Tab Header -->
+  <header class="preview-header">
+    <div style="display: flex; align-items: center; gap: 14px;">
+      <div class="brand-logo" style="width: 28px; height: 28px;">
+        <svg viewBox="0 0 24 24" style="width: 16px; height: 16px;"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8 12.5v-9l6 4.5-6 4.5z"/></svg>
+      </div>
+      <div style="font-size: 0.95rem; font-weight: 700;">
+        Dedicated Preview Tab
+      </div>
+      <div class="preview-version-pill">
+        <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--accent-green); box-shadow: 0 0 6px var(--accent-green);"></span>
+        <span>STUDIO SYNCED: 60 FPS</span>
+      </div>
+    </div>
+
+    <!-- Preview Controls & Voice Selector -->
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <div style="display: flex; align-items: center; gap: 6px;">
+        <span style="font-size: 0.72rem; color: var(--text-muted);">Voice:</span>
+        <select id="selTtsVoice" onchange="handleVoiceSelectionChange(this.value)" class="form-select" style="padding: 4px 8px; font-size: 0.75rem; background: var(--bg-secondary);">
+          <option value="en-US-ChristopherNeural" selected>Christopher (Deep Tactical Tech)</option>
+          <option value="en-US-GuyNeural">Guy (Energetic)</option>
+          <option value="en-GB-SoniaNeural">Sonia (British Cinematic)</option>
+          <option value="en-US-JennyNeural">Jenny (Warm Conversational)</option>
+        </select>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 6px;">
+        <span style="font-size: 0.72rem; color: var(--text-muted);">Package:</span>
+        <select id="selRenderPackage" onchange="loadSelectedPackageVideo(this.value)" class="form-select" style="padding: 4px 8px; font-size: 0.75rem; background: var(--bg-secondary); max-width: 170px;">
+          <option value="drone_swarms_vs_air_defense_44s.mp4">Drone Swarms (Active)</option>
+          <option value="marathon_fusion_gold_40s.mp4">Marathon Fusion</option>
+        </select>
+      </div>
+
+      <div class="version-selector-group">
+        <button class="btn-version active" id="btnModeVideo" onclick="setPreviewDisplayMode('video')">Rendered MP4</button>
+        <button class="btn-version" id="btnModeLive" onclick="setPreviewDisplayMode('live')">Live Canvas + VO</button>
+      </div>
+
+      <button class="btn-primary" onclick="runPreviewWithSelectedVoice()" style="padding: 4px 10px; font-size: 0.72rem;">
+        ▶ Run Preview
+      </button>
+
+      <button class="tool-btn" onclick="toggleSafeZone()">Safe Zone</button>
+      <button class="tool-btn" onclick="openContactSheetModal()">9-Frame QA</button>
+    </div>
+  </header>
+
+  <!-- Video Stage Canvas / Video Player -->
+  <main class="preview-body">
+    <div class="preview-device-frame" id="previewDeviceFrame">
+      <canvas id="videoCanvas" width="1080" height="1920" style="display: none;"></canvas>
+      <video id="finalRenderedVideo" src="drone_swarms_vs_air_defense_44s.mp4" controls autoplay loop playsinline style="width: 100%; height: 100%; object-fit: contain; display: block; border-radius: 18px;"></video>
+      
+      <!-- Safe Zone Overlay Mockup -->
+      <div class="safe-zone-overlay" id="safeZoneOverlay">
+        <div class="safe-zone-header">DEDICATED PREVIEW SAFE ZONE (9:16)</div>
+        <div class="safe-zone-sidebar">
+          <div class="mock-ui-icon">❤️</div>
+          <div class="mock-ui-icon">💬</div>
+          <div class="mock-ui-icon">🔄</div>
+          <div class="mock-ui-icon">🎵</div>
+        </div>
+        <div class="safe-zone-footer" id="safeZoneFooterTitle">
+          @opusmotion_pro • Autonomous Drone Swarms Vs Air Defense
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Bottom Transport Bar -->
+  <footer class="timeline-transport-bar" style="height: 100px;">
+    <div class="transport-controls-row">
+      <div class="transport-buttons">
+        <button class="transport-btn" onclick="jumpToStart()"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg></button>
+        <button class="transport-btn" onclick="stepFrame(-1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
+        <button class="transport-btn btn-play" id="btnPlayPause" onclick="togglePlayPause()"><svg id="iconPlay" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></button>
+        <button class="transport-btn" onclick="stepFrame(1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></button>
+      </div>
+
+      <div class="timecode-display">
+        <span class="timecode-current" id="dispCurrentTimecode">00:00.00</span>
+        <span class="timecode-total" id="dispTotalTimecode">/ 00:20.00</span>
+      </div>
+
+      <div class="timeline-tools">
+        <span style="font-size: 0.72rem; color: var(--accent-cyan); font-family: var(--font-mono);" id="currentSceneTag">SCENE 1: HOOK</span>
+      </div>
+    </div>
+
+    <!-- Timeline Scrubber -->
+    <div class="timeline-track-area" id="timelineScrubberArea" style="height: 32px;" onclick="handleTimelineScrubClick(event)">
+      <div class="timeline-playhead" id="timelinePlayhead"></div>
+      <div class="timeline-scenes-track" id="timelineScenesTrack"></div>
+    </div>
+  </footer>
+
+  <!-- Master Audio Element for Preview Tab -->
+  <audio id="masterAudioTrack" src="voice_drone_swarms.mp3" preload="auto"></audio>
+
+  <!-- Display Mode & Render Package Helper Script -->
+  <script>
+    function setPreviewDisplayMode(mode) {
+      const vid = document.getElementById('finalRenderedVideo');
+      const cvs = document.getElementById('videoCanvas');
+      const bVid = document.getElementById('btnModeVideo');
+      const bLive = document.getElementById('btnModeLive');
+
+      if (mode === 'live') {
+        if (vid) { vid.pause(); vid.style.display = 'none'; }
+        if (cvs) cvs.style.display = 'block';
+        if (bLive) bLive.classList.add('active');
+        if (bVid) bVid.classList.remove('active');
+        if (typeof runPreviewWithSelectedVoice === 'function') {
+          runPreviewWithSelectedVoice();
+        }
+      } else {
+        const audio = document.getElementById('masterAudioTrack');
+        if (audio) audio.pause();
+        if (cvs) cvs.style.display = 'none';
+        if (vid) { vid.style.display = 'block'; vid.play().catch(e => {}); }
+        if (bVid) bVid.classList.add('active');
+        if (bLive) bLive.classList.remove('active');
+      }
+    }
+
+    function loadSelectedPackageVideo(url) {
+      const vid = document.getElementById('finalRenderedVideo');
+      if (vid) {
+        vid.src = url;
+        setPreviewDisplayMode('video');
+      }
+    }
+
+    // Populate render package dropdown from master manifest
+    async function initRenderPackagesDropdown() {
+      const sel = document.getElementById('selRenderPackage');
+      if (!sel) return;
+
+      try {
+        const res = await fetch('renders/renders_manifest.json?v=' + Date.now());
+        if (!res.ok) return;
+        const list = await res.json();
+        if (list && list.length > 0) {
+          sel.innerHTML = list.map(item => `
+            <option value="${item.video_url}">📁 ${item.title.slice(0, 22)}... (${item.duration_formatted})</option>
+          `).join('');
+
+          // Check URL query param for ?video=
+          const params = new URLSearchParams(window.location.search);
+          const videoParam = params.get('video');
+          if (videoParam) {
+            loadSelectedPackageVideo(videoParam);
+            sel.value = videoParam;
+          } else if (list.length > 0) {
+            loadSelectedPackageVideo(list[0].video_url);
+            sel.value = list[0].video_url;
+            const titleEl = document.getElementById('safeZoneFooterTitle');
+            if (titleEl && list[0].title) {
+              titleEl.textContent = `@Piyushk20 • ${list[0].title}`;
+            }
+          }
+        }
+      } catch (e) {}
+    }
+
+    // BroadcastChannel listener for live playback from studio
+    try {
+      const ch = new BroadcastChannel('opusmotion_studio_sync');
+      ch.addEventListener('message', (e) => {
+        if (e.data && e.data.type === 'PLAY_ARCHIVE_VIDEO') {
+          loadSelectedPackageVideo(e.data.videoUrl);
+          const titleEl = document.getElementById('safeZoneFooterTitle');
+          if (titleEl && e.data.title) {
+            titleEl.textContent = `@Piyushk20 • ${e.data.title}`;
+          }
+        }
+      });
+    } catch (e) {}
+
+    window.addEventListener('DOMContentLoaded', initRenderPackagesDropdown);
+  </script>
+
+  <!-- Main Studio Engine -->
+  <script src="app.js"></script>
+</body>
+</html>

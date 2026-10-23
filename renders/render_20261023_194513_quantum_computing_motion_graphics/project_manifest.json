@@ -1,0 +1,132 @@
+{
+  "render_id": "render_20261023_194513_quantum_computing_motion_graphics",
+  "title": "Quantum Computing: Qubit Superposition, Shor's Algorithm & Dilution Cryocore",
+  "slug": "quantum_computing_motion_graphics",
+  "topic": "Quantum Computing & Cryptographic Breakthroughs",
+  "created_at": "2026-10-23T19:45:13.052604",
+  "created_formatted": "2026-10-23 19:45:13",
+  "specifications": {
+    "duration_seconds": 36.34,
+    "fps": 25,
+    "total_frames": 908,
+    "resolution": "720x1280",
+    "aspect_ratio": "9:16 (Shorts/Reels/TikTok)",
+    "video_codec": "H.264 (libx264, crf 18)",
+    "audio_codec": "AAC (192 kbps, 44.1 kHz)",
+    "motion_graphics": "Generated 3D Scene Visuals + Ken Burns + Procedural HUD Telemetry Overlays"
+  },
+  "voice": {
+    "voice_name": "en-US-ChristopherNeural",
+    "style": "Deep Technical Authority",
+    "rate": "+12%",
+    "file": "voiceover.mp3"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "name": "The Qubit Breakthrough Hook",
+      "start": 0.0,
+      "end": 8.8,
+      "duration": 8.8,
+      "tag": "SCENE 01: QUANTUM STATE HOOK",
+      "img_id": 1
+    },
+    {
+      "id": 2,
+      "name": "Superposition & Entanglement Mechanism",
+      "start": 8.8,
+      "end": 14.5,
+      "duration": 5.7,
+      "tag": "SCENE 02: ENTANGLEMENT LATTICE",
+      "img_id": 2
+    },
+    {
+      "id": 3,
+      "name": "Shor's Algorithm & Cryptographic Dissolution",
+      "start": 14.5,
+      "end": 23.5,
+      "duration": 9.0,
+      "tag": "SCENE 03: SHOR'S CODEBREAKER",
+      "img_id": 3
+    },
+    {
+      "id": 4,
+      "name": "The Cryogenic Scaling Challenge",
+      "start": 23.5,
+      "end": 29.5,
+      "duration": 6.0,
+      "tag": "SCENE 04: 15 mK CRYOCHAMBER",
+      "img_id": 4
+    },
+    {
+      "id": 5,
+      "name": "Singularity Outro & Subscribe CTA",
+      "start": 29.5,
+      "end": 36.34,
+      "duration": 6.84,
+      "tag": "SCENE 05: SOCIAL OUTRO CARD",
+      "img_id": 5
+    }
+  ],
+  "captions": [
+    {
+      "start": 0.0,
+      "end": 4.5,
+      "text": "Here is what makes Quantum computing a game-changing breakthrough:",
+      "highlight": "QUANTUM BREAKTHROUGH"
+    },
+    {
+      "start": 4.5,
+      "end": 8.8,
+      "text": "A quantum computer represents and processes information using quantum states.",
+      "highlight": "QUANTUM STATES"
+    },
+    {
+      "start": 8.8,
+      "end": 14.5,
+      "text": "Beneath the surface: Quantum computations exploit superposition, interference, and entanglement.",
+      "highlight": "SUPERPOSITION & ENTANGLEMENT"
+    },
+    {
+      "start": 14.5,
+      "end": 19.0,
+      "text": "Here is the critical insight: A large-scale quantum computer could break widely used encryption schemes...",
+      "highlight": "BREAK ENCRYPTION"
+    },
+    {
+      "start": 19.0,
+      "end": 23.5,
+      "text": "...and aid physicists in performing previously intractable physical simulations.",
+      "highlight": "PHYSICAL SIMULATIONS"
+    },
+    {
+      "start": 23.5,
+      "end": 29.5,
+      "text": "Looking at the future horizon: Quantum computers are not yet practical for real-world applications.",
+      "highlight": "REAL-WORLD SCALING"
+    },
+    {
+      "start": 29.5,
+      "end": 36.34,
+      "text": "For verified deep-dive procedural intelligence, make sure to like and subscribe to @OpusMotion!",
+      "highlight": "LIKE & SUBSCRIBE"
+    }
+  ],
+  "files": {
+    "video": {
+      "filename": "video.mp4",
+      "size_bytes": 19816377,
+      "size_formatted": "18.90 MB"
+    },
+    "voiceover": {
+      "filename": "voiceover.mp3",
+      "size_bytes": 218016,
+      "size_formatted": "212.9 KB"
+    },
+    "contact_sheet": {
+      "filename": "contact_sheet.png",
+      "size_bytes": 2753356,
+      "size_formatted": "2688.8 KB"
+    }
+  }
+}
