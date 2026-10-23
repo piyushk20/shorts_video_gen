@@ -72,3 +72,12 @@ preview_*contact_sheet.png
 preview_*rough.png
 !renders/renders_manifest.json
 
+# Output Audio Renderings & Stems
+*.mp3
+*.wav
+*.aac
+*.m4a
+*.ogg
+voice_*.mp3
+voiceover.mp3
+
